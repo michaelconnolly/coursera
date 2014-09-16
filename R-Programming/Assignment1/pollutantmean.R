@@ -12,8 +12,6 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
 
   
   ## Let's create our master numerical values that will cache all the individual files' data.
-  ## numberOfFilesToOpen <- length(id)
-  ## vectorOfEachFilesMeans <- vector("numeric", length = numberOfFilesToOpen)
   sumOfAllNumbers <- 0
   countOfAllNumbers <- 0
   
@@ -24,33 +22,27 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
     nameOfFile <- sprintf("%s\\%03d.csv", directory, id[i])
     currentFile <- read.csv(nameOfFile)
    
-    ## Calculate the mean.
+    ## Reduce us down to the rows we want.
     columnNameWeWant <- c(pollutant) 
     columnWeWant <- currentFile[columnNameWeWant]
     rowsWeWant <- columnWeWant[!(is.na(columnWeWant))]
-    ## currentMean <- mean(rowsWeWant)
-    
+
+    ## Cache the sums and count of rows.
     currentSum <- sum(rowsWeWant)
     sumOfAllNumbers <- sumOfAllNumbers + currentSum
     currentCount <- length(rowsWeWant)
     countOfAllNumbers <- countOfAllNumbers + currentCount
-    
-    ## Cache it in the master vector.
-    ## vectorOfEachFilesMeans[i] <- currentMean
   }
   
   ## OK, now, let's calculate the final mean.
-  ## TODO: round to 3 significant digits.
-  ## finalMean <- mean(vectorOfEachFilesMeans)
   finalMean <- sumOfAllNumbers / countOfAllNumbers
   
   ## Let's round to 3 decimal places.
   finalMean <- round(finalMean, digits=3)
   
-  ## print(finalMean)
+  ## We're done, we out.
   finalMean
   
- 
   ## Example Output:
   
     ## source("pollutantmean.R")
