@@ -1,11 +1,5 @@
 rankhospital <- function(state, outcome, num = "best") {
-  ## Read outcome data
-  ## Check that state and outcome are valid
-  ## Return hospital name in that state with the given rank
-  ## 30-day death rate
 
-
-  
   ## Read outcome data
   data_all <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   
@@ -30,23 +24,32 @@ rankhospital <- function(state, outcome, num = "best") {
   else{
     stop("invalid outcome")
   }
-  ## data_by_state_and_outcome <- data_by_state[data_by_state[]]
+  
+  ## What is the column number for Hospital.Name?
+  column_number_hospital_name <- 2
+  
+  ## convert the right column to numbers.
+  data_by_state[, column_number] <- as.numeric(data_by_state[, column_number])
   
   ## Let's remove the NA's.
   bad_rows <- is.na(data_by_state[column_number])
-  data_by_state_clean <- data_by_state[!bad_rows, ]
+  data_by_state <- data_by_state[!bad_rows, ]
   
-  ## What is the lowest value?
-  lowest_value <- as.numeric(mapply(min, data_by_state_clean[column_number]))
-  data_lowest_value <- data_by_state_clean[data_by_state_clean[column_number] == lowest_value, ]
+  ## Let's sort by column_number, followed by Hospital.Name.
+  data_by_state <- data_by_state[ order(data_by_state[,column_number], data_by_state$Hospital.Name), ]
   
-  ## TODO!  Need to sort and show the least alphabetical!
+  row_number = num
+  if (row_number == "best")
+    row_number = 1
+  else if (row_number == "worst")
+    row_number = nrow(data_by_state)
   
-  ## Pull out the row that has the lowest value.
-  ##data_min <- lapply(data_by_state_clean, min)
+  ## if we are asking for a row that is out or range, return NA.
+  if (nrow(data_by_state) < row_number){
+    NA
+    return
+  }
   
-  ## Return hospital name in that state with lowest 30-day death
-  data_lowest_value$Hospital.Name
-  
-  ## rate
+  ## Let's return the correct row, and the correct column.
+  data_by_state[row_number, column_number_hospital_name]
 }
