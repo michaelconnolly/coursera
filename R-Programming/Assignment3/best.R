@@ -33,7 +33,7 @@ best <- function(state, outcome) {
   ## What is the lowest value?
   lowest_value <- as.numeric(mapply(min, data_by_state_clean[column_number]))
   
-  data_lowest_value <- data_by_state_clean[data_by_state_clean[column_number] == lowest_value]
+  data_lowest_value <- data_by_state_clean[data_by_state_clean[column_number] == lowest_value, ]
   
   ## TODO!  Need to sort and show the least alphabetical!
   
