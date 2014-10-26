@@ -1,0 +1,91 @@
+# template for "Guess the number" mini-project
+# input will come from buttons and an input field
+# all output for the game will be printed in the console
+
+# Import my external libraries.
+import simplegui
+import random
+import math
+
+# Global variables
+secret_number = -1
+guess_count = 0
+guess_remaining = -1
+guess_total = 0
+min_number = 0
+max_number = 100
+
+# helper function to start and restart the game
+def new_game(new_min_number, new_max_number):
+    global secret_number, guess_count, guess_remaining, guess_total, min_number, max_number
+    min_number = new_min_number
+    max_number = new_max_number
+    secret_number = random.randrange(min_number, max_number)
+    guess_count = 0
+    
+    # hack, do this for real  using math.log and math.ceil
+    #if (max_number == 1000):
+    #    guess_total = guess_remaining = 10
+    #elif (max_number == 100):
+    #    guess_total = guess_remaining = 7
+    # posted algorithm for figuring out how many guesses you get.
+    guess_total = int(math.ceil(math.log((max_number - min_number + 1), 2)))
+    guess_remaining = guess_total
+    
+    print "New game starting! Guess a number between", min_number, "and", max_number, "(You get " + str(guess_remaining) + " guesses):"
+    
+# define event handlers for control panel
+def range100():
+    # button that changes the range to [0,100) and starts a new game 
+    new_game(0, 100)
+
+def range1000():
+    # button that changes the range to [0,1000) and starts a new game     
+    new_game(0, 1000)
+     
+def input_guess(guess):
+    # event handler after you hit return key in our input box.
+    global guess_count, guess_remaining
+    guessed_correctly = False
+    
+    # What was the guess?
+    guess_as_number = int(guess)
+    guess_count += 1
+    guess_remaining -= 1
+    
+    print "Guess #" + str(guess_count), "of", guess_total, "was", guess_as_number
+    
+    # How does it compare to the target number?
+    if (guess_as_number == secret_number):
+        print "Correct"
+        guessed_correctly = True
+    elif (guess_as_number > secret_number):
+        print "Lower"
+    else: # (guess_as_number < secret_number)
+        print "Higher"
+        
+    # Logic for eventually ending the game.
+    if (guessed_correctly):
+        print "You win!"
+        new_game(min_number, max_number)
+    elif ((not guessed_correctly) and (guess_remaining == 0)):
+        print "You lose!"
+        new_game(min_number, max_number)
+    
+    
+# create frame
+frame = simplegui.create_frame("Home", 300, 200)
+input_box = frame.add_input('Enter guess:', input_guess, 150)
+restart_button_100 = frame.add_button('Range: 0 - 100', range100, 150)
+restart_button_1000 = frame.add_button('Range: 0 - 1000', range1000, 150)
+
+
+# register event handlers for control elements and start frame
+frame.start()
+
+
+# call new_game 
+new_game(min_number, max_number)
+
+
+# always remember to check your completed program against the grading rubric
