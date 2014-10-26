@@ -6,9 +6,7 @@ library(sqldf)
 features_labels_raw <- read.table("dataset\\features.txt")
 features_labels <- features_labels_raw[2]
 features_labels <- t(features_labels)
-##features_labels_raw$colid <- seq(3, (nrow(features_labels_raw) + 2))
 features_labels_wewant <- sqldf("select V1 from features_labels_raw where V2 LIKE '%mean()%' OR V2 LIKE '%std()'")
-
 
 ## Read in training data.
 training_data <- read.table("dataset\\train\\X_train.txt", colClasses = "numeric", col.names=features_labels)
@@ -43,8 +41,13 @@ test_all <- sqldf("SELECT test_subject.subject_id, test_label_descrip.activity_n
 both_all <- rbind(training_all, test_all) 
 both_all$id = NULL
 
-## only take the columns we want
-##both_all_paired_down <- both_all[,features_labels_wewant$colid]
+## Create a summary table that averages each variable for each subject/activity.
+both_summary <- aggregate(both_all, FUN=mean, by=list(subject = both_all$subject_id, activity = both_all$activity_name))
+both_summary$subject_id = NULL
+both_summary$activity_name = NULL
+
+## Output the new combined table
+write.table(both_summary, file="tidydataset.txt", row.names=FALSE, append=FALSE)
 
 
 
