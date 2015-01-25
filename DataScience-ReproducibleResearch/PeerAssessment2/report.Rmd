@@ -1,0 +1,63 @@
+---
+title: "Analyzing the Human Impact of Climate Events in the United States"
+author: "Michael Connolly"
+date: "Saturday, January 24, 2015"
+output: html_document
+---
+
+## Synopsis
+
+You may ask yourself, across the United Status, which types of events are most harmful with respect to population health?  Relatedly, which events also have the greatest economic consequences?
+
+Using the NOAA Storm Database, it is clear that the most negatively impactful climate events on human health and prosperity is the tornado.  If you see a twister coming, back the truck up and skeedaddle, because it's about to go down, y'all.
+
+
+## Data Processing
+
+The data we used for this analysis comes from U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database, which can be found at this location: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2.  After downloading the file to our working directory, we loaded the file into memory and calculated the total of all deaths, injuries, and property damage for all climate events in the database.
+
+
+```{r}
+library(sqldf)
+
+dataFile <- read.csv("repdata-data-StormData.csv.bz2")
+
+allDeaths <- sqldf("SELECT SUM(FATALITIES) as FATALITIES_TOTAL FROM dataFile")
+allInjuries <- sqldf("SELECT SUM(INJURIES) as INJURIES_TOTAL FROM dataFile")
+allPropertyDamage <- sqldf("SELECT SUM(PROPDMG) as PROPDMG_TOTAL FROM dataFile")
+
+topTenDeaths <- sqldf("SELECT EVTYPE, SUM(FATALITIES) AS FATALITIES_TOTAL FROM dataFile GROUP BY EVTYPE ORDER BY FATALITIES_TOTAL DESC LIMIT 10")
+topTenInjuries <- sqldf("SELECT EVTYPE, SUM(INJURIES) AS INJURIES_TOTAL FROM dataFile GROUP BY EVTYPE ORDER BY INJURIES_TOTAL DESC LIMIT 10")
+topTenPropertyDamage <- sqldf("SELECT EVTYPE, SUM(PROPDMG) AS PROPDMG_TOTAL FROM dataFile GROUP BY EVTYPE ORDER BY PROPDMG_TOTAL DESC LIMIT 10")
+
+tornadoDeaths <- sqldf("SELECT COUNTYNAME, STATE, SUM(FATALITIES) AS FATALITIES_TOTAL FROM dataFile WHERE EVTYPE='TORNADO' GROUP BY COUNTY ORDER BY FATALITIES_TOTAL DESC LIMIT 20")
+tornadoInuries <- sqldf("SELECT COUNTYNAME, STATE, SUM(INJURIES) AS INJURIES_TOTAL FROM dataFile WHERE EVTYPE='TORNADO' GROUP BY COUNTY ORDER BY INJURIES_TOTAL DESC LIMIT 20")
+tornadoPropertyDamage <- sqldf("SELECT COUNTYNAME, STATE, SUM(PROPDMG) AS PROPDMG_TOTAL FROM dataFile WHERE EVTYPE='TORNADO' GROUP BY COUNTY ORDER BY PROPDMG_TOTAL DESC LIMIT 20")
+
+```
+
+## Results
+
+There are three non-controversial ways to measure the impact of different climate events over the course of time our data has been collected: human fatalities, human injuries, and property damage.  All three measurements show that the dominant events are tornados.
+
+
+```{r, echo=TRUE}
+par(mfrow=c(3,1))
+barplot(topTenDeaths$FATALITIES_TOTAL, names = topTenDeaths$EVTYPE,
+        xlab = "Event", ylab = "Fatalities",
+        main = "Top Ten Fatality Causing Events")
+barplot(topTenInjuries$INJURIES_TOTAL, names = topTenInjuries$EVTYPE,
+        xlab = "Event", ylab = "Injuries",
+        main = "Top Ten Injury Causing Events")
+barplot(topTenPropertyDamage$PROPDMG_TOTAL, names = topTenPropertyDamage$EVTYPE,
+        xlab = "Event", ylab = "Property Damage",
+        main = "Top Ten Property Damage Causing Events")
+```
+
+You might ask yourself, where is most of this human tragedy and destruction from tornados happening?  With the notable exception of Eddy, North Dakota, the top 10 affected counties all are in the southern part of the country.  The following table is a quick summary of just the top fatalities and injuries created by tornado events.  I could show you property damage in this report, but the instructor told me I could only show up to 3 figures.  I am not one to be disobedient on this point.
+
+
+```{r, echo=TRUE}
+tornadoDeaths
+tornadoInjuries
+```
