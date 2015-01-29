@@ -22,5 +22,5 @@ plot5data <- aggregate(justonezip$Emissions, by = list(year = justonezip$year), 
 ## Spit it into a chart!
 png(file="plot5.png")
 #qplot(year, x, data=plot4data)
-barplot(plot5data$x, names.arg=plot5data$year)
+barplot(plot5data$x, names.arg=plot5data$year, main="Motor Vehicle Emissions in Baltimore City")
 dev.off() 
