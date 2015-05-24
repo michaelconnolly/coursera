@@ -1,0 +1,35 @@
+---
+title: "Analyzing the ToothGrowth Dataset and the Impact of Delivery Methods"
+author: "Michael Connolly"
+date: "Saturday, May 23, 2015"
+output: pdf_document
+---
+
+The ToothGrowth dataset describes the length of teeth in each of 10 guinea pings at each of three dose levels of Vitamin C (0.5, 1 and 2 mg) with each of two delivery methods (orange juice and ascorbic acid).  That turns into 60 different observations on 3 variables: length (len), supplement type (supp), and the dose size (dose).
+
+```{r}
+head(ToothGrowth)
+```
+
+A quick and dirty analysis of the data shows a correlation between doseage and length, as well as the OJ delivery method having a larger impact than ascorbic acid at lower dose levels, such as 1.0.
+```{r}
+coplot(len ~ dose | supp, data = ToothGrowth, panel = panel.smooth, xlab = "ToothGrowth data: length vs dose, given type of supplement")
+```
+
+One interesting question we explore is if the difference in delivery method is statistically interesting.  We can use T Tests to do this analysis, and the answer is, yes, it's statistically interesting. Below, through the results of a T test (both done with the t.test method, and also calculated manually), you can see the confidence interval is clearly completely above zero.  This results points to the OJ delivery method has a statistically relevant positive impact of tooth growth, as compared to the alternative delivery method, ascorbic acid, at the 95% confidence level.
+
+Conversely, if the interval had overlapped zero, based on this sample size, we would not have confidence that there was an impact difference due to delivery method.
+
+```{r}
+teeth <- ToothGrowth
+group_oj <- teeth[teeth$supp=="OJ",]
+group_vc <- teeth[teeth$supp=="VC",]
+group_diff <- group_oj$len - group_vc$len
+group_diff_mean <- mean(group_diff)
+group_diff_sd <- sd(group_diff)
+group_diff_count <- length(group_diff)
+t.test(group_diff)
+group_diff_mean + c(-1, 1) * qt(.975, group_diff_count - 1) * group_diff_sd / sqrt(group_diff_count)
+
+```
+
